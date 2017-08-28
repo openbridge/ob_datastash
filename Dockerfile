@@ -21,8 +21,8 @@ ENV LOGSTASH_PATH /usr/share/logstash/bin
 ENV PATH $LOGSTASH_PATH:$PATH
 
 ENV LOGSTASH_VERSION 5.5.2
-ENV LOGSTASH_TARBALL="https://artifacts.elastic.co/downloads/logstash/logstash--${LS_VERSION}.tar.gz" \
-	  LOGSTASH_TARBALL_ASC="https://artifacts.elastic.co/downloads/logstash/logstash--${LS_VERSION}.tar.gz.asc" \
+ENV LOGSTASH_TARBALL="https://artifacts.elastic.co/downloads/logstash/logstash-${LOGSTASH_VERSION}.tar.gz" \
+	  LOGSTASH_TARBALL_ASC="https://artifacts.elastic.co/downloads/logstash/logstash-${LOGSTASH_VERSION}.tar.gz.asc" \
 	  LOGSTASH_TARBALL_SHA1="2961489ccf8bef2bf9ae6c4eaaeeeb65b2ccd109"
 
 RUN set -ex; \
@@ -81,6 +81,6 @@ RUN set -ex; \
 	logstash --version
 
 COPY docker-entrypoint.sh /
-COPY config/pipeline/default.conf /usr/share/logstash/pipeline/logstash.conf
+COPY config/pipeline /usr/share/logstash/pipeline
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["-e", ""]
