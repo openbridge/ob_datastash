@@ -1,14 +1,15 @@
 # Data Stash - Event API Client
-Data Stash can ingest data from different data sources simultaneously, transform them, and then sends them to the Openbridge Events API.
+Data Stash can ingest data from different data sources simultaneously, transform them, and then sends a JSON output via HTTP to the Openbridge Events API.
 
 # How It Works
-Data Stash is based on a premise of inputs, filters and outputs.
+Data Stash is based on a premise of input, filter and output.
  * **Inputs**: Your data sources.
- * **Filters**: Pre-processing your data prior to delivery to the output
- * **Outputs**: Openbridge REST API Webhooks
+ * **Filters**: This is pre-processing your data prior to delivery to an output location
+ * **Outputs**: Is the Openbridge REST API Webhooks
 
 # Getting Started
 Data Stash is neatly packaged into a Docker image so you can run this on your local laptop or deploy it to a server.
+
 ## Install
 The first step is to build or pull the image:
 ```docker
@@ -19,26 +20,26 @@ or simply pull it from Docker Hub:
 docker pull openbridge/ob_datastash:latest
 ```
 
-## Example: Streaming CSV Files
-Data Stash can take a CSV file and break each record into a streamed "event". These events are delivered to an Openbridge API for import into your target warehouse.
+# Example: Streaming CSV Files
+Data Stash can take a CSV file and break each row into a streamed JSON "event". These JSON events are delivered to an Openbridge API for import into your target warehouse.
 
-There are a couple uses cases around CSV files:
+There are a couple of CSV file use cases:
 
- * **Static Files**: You have exports from a system that you want to load to your data warehouse. Data Stash will process the exported source files and stream the contents of the file until it reaches the end.
+ * **Static Files**: You have exports from a system that you want to load to your data warehouse. Data Stash will process the exported source file and stream the content of the file until it reaches the end.
  * **Dynamic Files**: You have a file that continually has new rows added. Data Stash will process changing files and stream new events as they are appended to a file.
 
-In this example we have a static CSV file called `sales.csv` that we want to process.
+For our example walk-thru we use a static CSV file called `sales.csv`.
 
-## Configuration File
-To run Data Stash you need to define a config file. Each config file is comprised of three parts; input, filter and output.
+## `sales.csv` Needs A Data Stash Configuration File
+To run Data Stash for `sales.csv` you need to define a config file. Each config file is comprised of three parts; input, filter and output. A config file describes how Data Stash should process your `sales.csv` file.
 
 ### Step 1: Define Your Input
-The principle part of the input is setting the `path =>` to your file(s). In the example below we used a wildcard `*.csv` to specify processing all sales CSV files in the directory. For example, if you had a file called `sales.csv`, `sales002.csv` and `sales-allyear.csv` using a wildcard `*.csv` will process all of them. If you have a specific file you want to process then you can just put the name in like this `path => "/the/path/to/your/sales.csv"`
+The principle part of the input is setting the `path =>` to your file(s). In the example below we used a wildcard `*.csv` to specify processing all sales CSV files in the directory. For example, if you had a file called `sales.csv`, `sales002.csv` and `sales-allyear.csv` using a wildcard `*.csv` will process all of them. If you have a specific file you want to process then you can just put the name in like this `path => "/the/path/to/your/sales.csv"`. Please note, using a `*.csv` assumes all files have the same structure/layout. If they do not, then you can be streaming disjointed data sets which will likely fail when it comes time to loading data to your warehouse. 
 
 #### Example
-You have a folder on your laptop `/Users/bob/csv/mysalesdata` with `sales.csv`.
+Lets dig into your example `sales.csv`. We are going to assume this is located in a folder on your laptop here: `/Users/bob/csv/mysalesdata`.
 
-Data Stash uses a default directory called `/data`. In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
+Data Stash will use its own default directory called `/data` to reference your files. What does this mean? In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
 
 See the "How To Run" section for more details on this mapping.
 
@@ -53,11 +54,11 @@ See the "How To Run" section for more details on this mapping.
 ```
 
  ### Step 2: Define Your Schema
-This is where you define your filter. For a CSV file the filter is focused on setting the schema of the CSV and removal of system generated columns.  
+This is where you define your filter. For a CSV file the filter is focused on setting the schema and removal of system generated columns.  
 
-* The `separator => ","` defines the delimiter.
-* The removal of system generated columns is done via `remove_field => [ "message", "host", "@timestamp", "@version", "path" ]`
-* If you CSV file has a header row, then you can set `autodetect_column_names => "true"` and `autogenerate_column_names => "true"` to leverage those values when processing the file.
+* The `separator => ","` defines the delimiter. Do not change
+* The removal of system generated columns is done via `remove_field => [ "message", "host", "@timestamp", "@version", "path" ]`. Do not change unless you want to remove other columns from your CSV file. For example, lets say you had a column called `userid`. You can add it like this `remove_field => [ "message", "host", "@timestamp", "@version", "path", "userid" ]`. Now `userid` will be supressed and not sent to Openbridge.
+* If your CSV file has a header row, then you can set `autodetect_column_names => "true"` and `autogenerate_column_names => "true"` to leverage those values when processing the file.
 
 ```bash
  filter {
@@ -69,7 +70,7 @@ This is where you define your filter. For a CSV file the filter is focused on se
    }
  }
 ```
-If your CSV does **not** have a header in the file you need to provide context about the target source file. You need to supply the header to the application `columns => [Sku,Name,SearchKeywords,Main,Price,ID,Brands]`
+If your CSV does **not** have a header in the file you need to provide context about the target source file. You need to supply the header to the application `columns => [Sku,Name,SearchKeywords,Main,Price,ID,Brands]`. This header should align to the laytout of the CSV file.
 ```bash
   filter {
     csv {
@@ -80,10 +81,10 @@ If your CSV does **not** have a header in the file you need to provide context a
   }
 ```
 
- ### Step 3: Define Your Output Destination
- The output defines the delivery location for all the records in your CSV(s). Openbridge will generate a API endpoint which you use in the `url => ""`.
+### Step 3: Define Your Output Destination
+The output defines the delivery location for all the records in your CSV(s). Openbridge generates a private API endpoint which you use in the `url => ""`. The delivery API would look like this `url => "https://myapi.foo-api.us-east-1.amazonaws.com/dev/events/teststash?token=774f77b389154fd2ae7cb5131201777&sign=ujguuuljNjBkFGHyNTNmZTIxYjEzMWE5MjgyNzM1ODQ="`
 
- The delivery API would look like this `url => "https://myapi.foo-api.us-east-1.amazonaws.com/dev/events/teststash?token=774f77b389154fd2ae7cb5131201777&sign=ujguuuljNjBkFGHyNTNmZTIxYjEzMWE5MjgyNzM1ODQ="`
+You would take the Openberidge provided endpoint and put it into the config:
 ```bash
    output {
      http {
@@ -99,30 +100,27 @@ If your CSV does **not** have a header in the file you need to provide context a
 
  You need to reach out to your Openbridge team so they can provision your private API for you.
 
-### Save Your config
-You will want to store your configs in a easy to remember location. You should also name the config in a manner that reflects the data it reflects. In our example it looks like this: `/Users/bob/datastash/configs/sales.conf`
-
-We will need to reference this config in the next section.
+### Step 4: Save Your Config
+You will want to store your configs in a easy to remember location. You should also name the config in a manner that reflects the data resident in the CSV file. Since we are using `sales.csv` we saved our config like this: `/Users/bob/datastash/configs/sales.conf`. We will need to reference this config location in the next section.
 
 # How To Run
-With your config file defined and your `sales.csv` file ready to be streamed you can run the Data Stash application.
+With your `sales.csv`config file saved to `/Users/bob/datastash/configs/sales.conf` you are ready to stream yourr data!
 
-There are two things that Data Stash needs to be told.
- 1. Where to find your CSV file
- 2. The location of the the config file
+There are two things that Data Stash needs to be told in order to run.
+ 1. Where to find your CSV file (`/Users/bob/csv/mysalesdata`)
+ 2. The location of the the config file (`/Users/bob/datastash/configs`)
 
-You tell Data Stash these two things via the `-v` or volume command in Docker. As we already discussed your CSV is located on your laptop in this folder: `/Users/bob/csv/mysalesdata` so we put that into the first `-v` command. Data Stash defaults to `/data` so you can leave that untouched. It should look like this
+You tell Data Stash where the file and config are via the `-v` or `volume` command in Docker. Your CSV is located on your laptop in this folder: `/Users/bob/csv/mysalesdata` so we put that into the first `-v` command. Data Stash defaults to `/data` so you can leave that untouched. It should look like this:
 
 ```bash
 -v /Users/bob/csv/mysalesdata:/data
 ```
-
-You saved your config file on you laptop here `/Users/bob/datastash/config`. Data Stash defaults to looking for configs in `/config/pipeline` so you can that untouched
+You saved your config file on you laptop here: `/Users/bob/datastash/config`. Data Stash defaults to looking for configs in `/config/pipeline` so you can that untouched
 
 ```bash
 -v /Users/bob/datastash/configs:/config/pipeline
 ```
-
+lastly, we put it all togehter and tell Data Stash to stream the file:
 ```bash
  docker run -it --rm \
  -v /Users/bob/csv/mysalesdata:/data \
