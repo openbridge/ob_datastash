@@ -340,10 +340,3 @@ Before you start to code, we recommend discussing your plans through a GitHub is
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
-docker run -it --rm \
--v /Users/thomas/Documents/temp:/data \
--v /Github/ob_datastash/config/pipeline:/config/pipeline \
-openbridge/ob_datastash \
-bash
-logstash -f /config/pipeline/test.conf
