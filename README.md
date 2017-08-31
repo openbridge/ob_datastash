@@ -1,11 +1,11 @@
 # Data Stash - Event API Client
-Data Stash can ingest data from different data sources simultaneously, transform them, and then sends a JSON output via HTTP to the Openbridge Events API.
+Data Stash can ingest data from different data sources simultaneously, transform them, and then sends a JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats too.
 
 # How It Works
 Data Stash is based on a premise of input, filter and output.
- * **Inputs**: Your data sources.
+ * **Inputs**: Your data sources. Primarily this will be a CSV file, but it an be many others.
  * **Filters**: This is pre-processing your data prior to delivery to an output location
- * **Outputs**: Is the Openbridge REST API Webhooks
+ * **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
 
 # Getting Started
 Data Stash is neatly packaged into a Docker image so you can run this on your local laptop or deploy it to a server.
@@ -34,27 +34,24 @@ For our example walk-thru we use a static CSV file called `sales.csv`.
 To run Data Stash for `sales.csv` you need to define a config file. Each config file is comprised of three parts; input, filter and output. A config file describes how Data Stash should process your `sales.csv` file.
 
 ### Step 1: Define Your Input
-The principle part of the input is setting the `path =>` to your file(s). In the example below we used a wildcard `*.csv` to specify processing all sales CSV files in the directory. For example, if you had a file called `sales.csv`, `sales002.csv` and `sales-allyear.csv` using a wildcard `*.csv` will process all of them. If you have a specific file you want to process then you can just put the name in like this `path => "/the/path/to/your/sales.csv"`. Please note, using a `*.csv` assumes all files have the same structure/layout. If they do not, then you can be streaming disjointed data sets which will likely fail when it comes time to loading data to your warehouse. 
+Lets dig into your example `sales.csv`. The principle part of the input is setting the `path =>` to your file(s). You will need to specify the path to the file you want to process like this `path => "/the/path/to/your/sales.csv"`. We are going to assume this is located in a folder on your laptop here: `/Users/bob/csv/mysalesdata`.
 
-#### Example
-Lets dig into your example `sales.csv`. We are going to assume this is located in a folder on your laptop here: `/Users/bob/csv/mysalesdata`.
-
-Data Stash will use its own default directory called `/data` to reference your files. What does this mean? In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
+However, Data Stash has its own location wehre it references your data. It will use its own default directory called `/data` to reference your files. What does this mean? In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
 
 See the "How To Run" section for more details on this mapping.
 
 ```bash
  input {
    file {
-      path => "/data/*.csv"
+      path => "/data/sales.csv"
       start_position => "beginning"
       sincedb_path => "/dev/null"
    }
  }
 ```
 
- ### Step 2: Define Your Schema
-This is where you define your filter. For a CSV file the filter is focused on setting the schema and removal of system generated columns.  
+ ### Step 2: Define Your Filter
+This is where you define a CSV filter. A basic filter is focused on setting the schema and removal of system generated columns.  
 
 * The `separator => ","` defines the delimiter. Do not change
 * The removal of system generated columns is done via `remove_field => [ "message", "host", "@timestamp", "@version", "path" ]`. Do not change unless you want to remove other columns from your CSV file. For example, lets say you had a column called `userid`. You can add it like this `remove_field => [ "message", "host", "@timestamp", "@version", "path", "userid" ]`. Now `userid` will be supressed and not sent to Openbridge.
@@ -76,11 +73,68 @@ If your CSV does **not** have a header in the file you need to provide context a
     csv {
        separator => ","
        remove_field => [ "message", "host", "@timestamp", "@version", "path" ]
-       columns => [Sku,Name,SearchKeywords,Main,Price,ID,Brands]
+       columns => ["Sku","Name","SearchKeywords","Main","Price","ID","Brands"]
     }
   }
 ```
 
+#### Advanced Filtering
+Here is a more advance filter. This performs pre-prcoessing cleanup on the CSV file. For example, it will strip whitespace from columns, removed bad characters, convert a column to a different data type and so forther.
+
+```bash
+
+filter {
+
+# The CSV filter takes an event field containing CSV data,
+# parses it, and stores it as individual fields (can optionally specify the names).
+# This filter can also parse data with any separator, not just commas.
+
+  csv {
+  # Set the comma delimiter
+    separator => ","
+
+  # We want to exclude these system columns
+    remove_field => [
+       "message",
+       "host",
+       "@timestamp",
+       "@version",
+       "path"
+    ]
+
+  # Define the layout of the input file
+    columns => [
+    "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+    ]
+  }
+
+  # The mutate filter allows you to perform general
+  # mutations on fields. You can rename, remove, replace
+  # and modify fields in your events
+
+  # We need to set the target column to "string" to allow for find and replace
+  mutate {
+    convert => [ "Sku", "string" ]
+  }
+
+  # Strip backslashes, question marks, equals, hashes, and minuses from the target column
+  mutate {
+     gsub => [ "Sku", "[\\?#=]", "" ]
+  }
+
+  # Strip extraneous white space from records
+  mutate {
+     strip => [ "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+     ]
+  }
+
+  # Set everything to lowercase
+  mutate {
+     lowercase => [ "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+     ]
+  }
+}
+```
 ### Step 3: Define Your Output Destination
 The output defines the delivery location for all the records in your CSV(s). Openbridge generates a private API endpoint which you use in the `url => ""`. The delivery API would look like this `url => "https://myapi.foo-api.us-east-1.amazonaws.com/dev/events/teststash?token=774f77b389154fd2ae7cb5131201777&sign=ujguuuljNjBkFGHyNTNmZTIxYjEzMWE5MjgyNzM1ODQ="`
 
@@ -98,10 +152,121 @@ You would take the Openberidge provided endpoint and put it into the config:
 ```
 **Note**: Do not change `http_method => "post"`, `format => "json"`, `pool_max => "10"`, `pool_max_per_route => "5"` from the defaults listed in the config.
 
- You need to reach out to your Openbridge team so they can provision your private API for you.
+You can also store the data to a CSV file (vs sending it to an API). This might be useful to test or validate your data prior to using the API. It also might be useful if you want to create a CSV for upload to Openbridge via SFTP or SCP.
+
+```bash
+output {
+
+  # Saving output to CSV so we define the layout of the file
+    csv {
+      fields => [ "Sku","Name","SearchKeywords","Main","Price","ID","Brands" ]
+
+   # Where do you want to export the file
+     path => "/data/foo.csv"
+    }
+}
+```
+You need to reach out to your Openbridge team so they can provision your private API for you.
 
 ### Step 4: Save Your Config
 You will want to store your configs in a easy to remember location. You should also name the config in a manner that reflects the data resident in the CSV file. Since we are using `sales.csv` we saved our config like this: `/Users/bob/datastash/configs/sales.conf`. We will need to reference this config location in the next section.
+
+The final config will look something like this:
+
+```bash
+####################################
+# An input enables a specific source of
+# events to be read by Logstash.
+####################################
+
+input {
+  file {
+     # Set the path to the source file(s)
+     path => "/data/sales.csv"
+     start_position => "beginning"
+     sincedb_path => "/dev/null"
+  }
+}
+
+####################################
+# A filter performs intermediary processing on an event.
+# Filters are often applied conditionally depending on the
+# characteristics of the event.
+####################################
+
+filter {
+
+ csv {
+
+   # The CSV filter takes an event field containing CSV data,
+   # parses it, and stores it as individual fields (can optionally specify the names).
+   # This filter can also parse data with any separator, not just commas.
+
+  # Set the comma delimiter
+    separator => ","
+
+  # We want to exclude these system columns
+    remove_field => [
+    "message", "host", "@timestamp", "@version", "path"
+    ]
+
+  # Define the layout of the input file
+    columns => [
+    "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+    ]
+  }
+
+  # The mutate filter allows you to perform general
+  # mutations on fields. You can rename, remove, replace
+  # and modify fields in your events
+
+  # We need to set the target column to "string" to allow for find and replace
+  mutate {
+    convert => [ "Sku", "string" ]
+  }
+
+  # Find and remove backslashes, question marks, equals and hashes from the target column. These are characters we do not want in our column
+  mutate {
+     gsub => [ "Sku", "[\\?#=]", "" ]
+  }
+
+  # Strip extraneous white space from records
+  mutate {
+     strip => [ "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+     ]
+  }
+
+  # Set everything to lowercase
+  mutate {
+     lowercase => [ "Sku","Name","SearchKeywords","Main","Price","ID","Brands"
+     ]
+  }
+}
+
+####################################
+# An output sends event data to a particular
+# destination. Outputs are the final stage in the
+# event pipeline.
+####################################
+
+output
+{
+  # Sending the contents of the file to the event API
+  http
+  {
+    # Put the URL for your HTTP endpoint to deliver events to
+    url => "https://myapi.foo-api.us-east-1.amazonaws.com/dev/events/teststash?token=774f77b389154fd2ae7cb5131201777&sign=ujguuuljNjBkFGHyNTNmZTIxYjEzMWE5MjgyNzM1ODQ="
+    # Leave the settings below untouched.
+    http_method => "post"
+    format => "json"
+    pool_max => "10"
+    pool_max_per_route => "5"
+  }
+}
+
+
+
+
 
 # How To Run
 With your `sales.csv`config file saved to `/Users/bob/datastash/configs/sales.conf` you are ready to stream yourr data!
@@ -129,6 +294,22 @@ lastly, we put it all togehter and tell Data Stash to stream the file:
  datastash -f /config/pipeline/sales.conf
 ```
 
+# Notes
+
+## Processing A Folder Of CSV Files
+In the example below we used a wildcard `*.csv` to specify processing all sales CSV files in the directory.
+
+`path => "/the/path/to/your/*.csv"`
+
+For example, if you had a file called `sales.csv`, `sales002.csv` and `sales-allyear.csv` using a wildcard `*.csv` will process all of them. I
+
+Please note, using a `*.csv` assumes all files have the same structure/layout. If they do not, then you can be streaming disjointed data sets which will likely fail when it comes time to loading data to your warehouse.
+
+# Versioning
+| Docker Tag | Git Hub Release | Logstash | Alpine Version |
+|-----|-------|-----|--------|
+| latest | Master | 5.5.2 | 3.6 |
+
 # Reference
 We leverage Logstash as the underlying application. Logstash is pretty cool and can do a lot more than just processing CSV files:
  * https://www.elastic.co/products/logstash
@@ -143,10 +324,7 @@ This images is used for virtualizing your data streaming using Docker. If you do
  - [Docker Mac](https://docs.docker.com/docker-for-mac/)
  - [Docker Windows](https://docs.docker.com/docker-for-windows/)
 
-# Versioning
-| Docker Tag | Git Hub Release | Logstash | Alpine Version |
-|-----|-------|-----|--------|
-| latest | Master | 5.5.2 | 3.6 |
+
 
 
 # TODO
@@ -162,3 +340,10 @@ Before you start to code, we recommend discussing your plans through a GitHub is
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+docker run -it --rm \
+-v /Users/thomas/Documents/temp:/data \
+-v /Github/ob_datastash/config/pipeline:/config/pipeline \
+openbridge/ob_datastash \
+bash
+logstash -f /config/pipeline/test.conf

@@ -78,9 +78,11 @@ RUN set -ex; \
 		fi; \
 	done; \
 	\
+	logstash-plugin install logstash-filter-jdbc_streaming \
 	logstash --version
 
 COPY docker-entrypoint.sh /
 COPY config/pipeline /usr/share/logstash/pipeline
+COPY config/drivers /usr/share/logstash/drivers
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["-e", ""]
