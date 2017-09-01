@@ -1,10 +1,12 @@
 # Data Stash - Event API Client
-Data Stash can ingest data from different data sources simultaneously, transform them, and then sends a JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats too.
+Data Stash can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats too such as CSV.
 
 ![Data Stash](datastash.png "How It Works")
 
+A the heart of Data Stash is [Logstash](https://www.elastic.co/products/logstash). For a deeper dive into the capabilities of Logstash check our their [documentation](https://www.elastic.co/guide/en/logstash/current/index.html).
+
 # How It Works
-Data Stash is based on a premise of input, filter and output.
+Data Stash is based on a premise of inputs, filters and outputs;
  * **Inputs**: Your data sources. Primarily this will be a CSV file, but it an be many others.
  * **Filters**: This is pre-processing your data prior to delivery to an output location
  * **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
