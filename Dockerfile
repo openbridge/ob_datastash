@@ -1,20 +1,14 @@
 FROM openjdk:8-jre-alpine
 
-# ensure logstash user exists
 RUN addgroup -S logstash && adduser -S -G logstash logstash
 
-# install plugin dependencies
 RUN apk add --no-cache \
-# env: can't execute 'bash': No such file or directory
 		bash \
+		curl \
 		libc6-compat \
 		libzmq
 
-# grab su-exec for easy step-down from root
 RUN apk add --no-cache 'su-exec>=0.2'
-
-# https://www.elastic.co/guide/en/logstash/5.0/installing-logstash.html#_apt
-# https://artifacts.elastic.co/GPG-KEY-elasticsearch
 ENV GPG_KEY 46095ACC8548582C1A2699A9D27D666CD88E42B4
 
 ENV LOGSTASH_PATH /usr/share/logstash/bin
@@ -62,13 +56,11 @@ RUN set -ex; \
 	apk del .fetch-deps; \
 	\
 	export LS_SETTINGS_DIR="$dir/config"; \
-# if the "log4j2.properties" file exists (logstash 5.x), let's empty it out so we get the default: "logging only errors to the console"
 	if [ -f "$LS_SETTINGS_DIR/log4j2.properties" ]; then \
 		cp "$LS_SETTINGS_DIR/log4j2.properties" "$LS_SETTINGS_DIR/log4j2.properties.dist"; \
 		truncate -s 0 "$LS_SETTINGS_DIR/log4j2.properties"; \
 	fi; \
 	\
-# set up some file permissions
 	for userDir in \
 		"$dir/config" \
 		"$dir/data" \
@@ -81,7 +73,8 @@ RUN set -ex; \
 	logstash --version
 
 COPY docker-entrypoint.sh /
+COPY logstash.yml /usr/share/logstash/config
 COPY config/pipeline /usr/share/logstash/pipeline
-COPY config/drivers /usr/share/logstash/drivers
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["-e", ""]

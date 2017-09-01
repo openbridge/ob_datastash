@@ -6,7 +6,8 @@ if [ "${1#-}" != "$1" ]; then
 	set -- logstash "$@"
 fi
 
-mkdir -p /data
+mkdir -p /data/logstash-temp-queue
+mkdir -p /data/logstash-temp-sincedb
 # Set a link to datastash as a command.
 ln -s /usr/share/logstash/bin/logstash datastash
 
