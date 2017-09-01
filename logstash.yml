@@ -39,16 +39,16 @@
 #
 # How many workers should be used per output plugin instance
 #
-#pipeline.output.workers: 1
+# pipeline.output.workers: 1
 #
 # How many events to retrieve from inputs before sending to filters+workers
 #
-#p#ipeline.batch.size: 125
+# pipeline.batch.size: 125
 #
 # How long to wait before dispatching an undersized batch to filters+workers
 # Value is in milliseconds.
 #
-#pipeline.batch.delay: 5
+# pipeline.batch.delay: 5
 #
 # Force Logstash to exit during shutdown even if there are still inflight
 # events in memory. By default, logstash will refuse to quit until all
@@ -75,11 +75,11 @@
 # Periodically check if the configuration has changed and reload the pipeline
 # This can also be triggered manually through the SIGHUP signal
 #
-#config.reload.automatic: true
+# config.reload.automatic: true
 #
 # How often to check if the pipeline configuration has changed (in seconds)
 #
-#config.reload.interval: 10s
+# config.reload.interval: 10s
 #
 # Show fully compiled configuration as debug log message
 # NOTE: --log.level must be 'debug'

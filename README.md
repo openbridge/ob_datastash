@@ -7,6 +7,10 @@ Data Stash is based on a premise of input, filter and output.
  * **Filters**: This is pre-processing your data prior to delivery to an output location
  * **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
 
+ Inline-style:
+![Data Stash](datastash.png "How It Works")
+
+
 # Getting Started
 Data Stash is neatly packaged into a Docker image so you can run this on your local laptop or deploy it to a server.
 
@@ -290,7 +294,7 @@ lastly, we put it all togehter and tell Data Stash to stream the file:
  -v /Users/bob/datastash/configs:/config/pipeline \
  openbridge/ob_datastash \
  datastash -f /config/pipeline/sales.conf
- 
+
 ```
 
 # Notes
@@ -322,9 +326,6 @@ This images is used for virtualizing your data streaming using Docker. If you do
  - [Engine: Get Started](https://docs.docker.com/engine/getstarted/)
  - [Docker Mac](https://docs.docker.com/docker-for-mac/)
  - [Docker Windows](https://docs.docker.com/docker-for-windows/)
-
-
-
 
 # TODO
 * Create more sample configs, including complex wrangling examples.
