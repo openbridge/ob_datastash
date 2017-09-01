@@ -263,10 +263,7 @@ output
     pool_max_per_route => "5"
   }
 }
-
-
-
-
+```
 
 # How To Run
 With your `sales.csv`config file saved to `/Users/bob/datastash/configs/sales.conf` you are ready to stream yourr data!
@@ -287,11 +284,13 @@ You saved your config file on you laptop here: `/Users/bob/datastash/config`. Da
 ```
 lastly, we put it all togehter and tell Data Stash to stream the file:
 ```bash
+
  docker run -it --rm \
  -v /Users/bob/csv/mysalesdata:/data \
  -v /Users/bob/datastash/configs:/config/pipeline \
  openbridge/ob_datastash \
  datastash -f /config/pipeline/sales.conf
+ 
 ```
 
 # Notes
