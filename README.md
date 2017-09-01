@@ -35,12 +35,12 @@ For our example walk-thru we use a static CSV file called `sales.csv`.
 ## `sales.csv` Needs A Data Stash Configuration File
 To run Data Stash for `sales.csv` you need to define a config file. Each config file is comprised of three parts; input, filter and output. A config file describes how Data Stash should process your `sales.csv` file.
 
-For reference, sample configs can be found in the `/config/pipeline` folder of this repo.
+For reference, sample configs can be found in the [`/config/pipeline`](config/pipeline) folder of this repo.
 
 ### Step 1: Define Your Input
 Lets dig into your example `sales.csv`. The principle part of the input is setting the `path =>` to your file(s). You will need to specify the path to the file you want to process like this `path => "/the/path/to/your/sales.csv"`. We are going to assume this is located in a folder on your laptop here: `/Users/bob/csv/mysalesdata`.
 
-However, Data Stash has its own location wehre it references your data. It will use its own default directory called `/data` to reference your files. What does this mean? In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
+However, Data Stash has its own location where it references your data. It will use its own default directory called `/data` to reference your files. What does this mean? In the Data Stash config you will use the `/data` in the file path as a default.  When you run Data Stash you will tell it to map your laptop directory `/Users/bob/csv/mysalesdata` to the `/data`. This means anything in your laptop directory will appear exactly the same way inside `/data`.
 
 See the "How To Run" section for more details on this mapping.
 
