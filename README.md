@@ -81,7 +81,7 @@ If your CSV does **not** have a header in the file you need to provide context a
 ```
 
 #### Advanced Filtering
-Here is a more advance filter. This performs pre-prcoessing cleanup on the CSV file. For example, it will strip whitespace from columns, removed bad characters, convert a column to a different data type and so forther.
+Here is a more advance filter. This performs pre-prcoessing cleanup on the CSV file. For example, it will strip whitespace from columns, removed bad characters, convert a column to a different data type and so forth.
 
 ```bash
 
