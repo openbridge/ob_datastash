@@ -5,17 +5,13 @@ Data Stash can ingest data from different data sources, transform them, and then
 
 A the heart of Data Stash is [Logstash](https://www.elastic.co/products/logstash). For a deeper dive into the capabilities of Logstash check our their [documentation](https://www.elastic.co/guide/en/logstash/current/index.html).
 
-# How It Works
 Data Stash is based on a premise of inputs, filters and outputs;
  * **Inputs**: Your data sources. Primarily this will be a CSV file, but it an be many others.
  * **Filters**: This is pre-processing your data prior to delivery to an output location
  * **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
 
-# Getting Started
-Data Stash is neatly packaged into a Docker image so you can run this on your local laptop or deploy it to a server.
-
-## Install
-The first step is to build or pull the image:
+# Install
+Data Stash is neatly packaged into a Docker image so you can run this on your local laptop or deploy it to a server. The first step is to build or pull the image:
 ```docker
 docker build -t openbridge/ob_datastash .
 ```
@@ -24,7 +20,7 @@ or simply pull it from Docker Hub:
 docker pull openbridge/ob_datastash:latest
 ```
 
-# Example: Streaming CSV Files
+# Getting Started: How To Stream CSV Files
 Data Stash can take a CSV file and break each row into a streamed JSON "event". These JSON events are delivered to an Openbridge API for import into your target warehouse.
 
 There are a couple of CSV file use cases:
