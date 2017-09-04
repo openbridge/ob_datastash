@@ -70,6 +70,7 @@ RUN set -ex; \
 		fi; \
 	done; \
 	\
+	/usr/share/logstash/bin/logstash-plugin install logstash-filter-i18n; \
 	logstash --version
 
 COPY docker-entrypoint.sh /

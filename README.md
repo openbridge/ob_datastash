@@ -1,5 +1,5 @@
 # Data Stash - Event API Client
-Data Stash can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats too such as CSV.
+Data Stash can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats such as CSV.
 
 ![Data Stash](datastash.png "How It Works")
 
@@ -19,6 +19,7 @@ or simply pull it from Docker Hub:
 ```docker
 docker pull openbridge/ob_datastash:latest
 ```
+Once you have your image you are ready yo get started!
 
 # Getting Started: How To Stream CSV Files
 Data Stash can take a CSV file and break each row into a streamed JSON "event". These JSON events are delivered to an Openbridge API for import into your target warehouse.
@@ -268,23 +269,23 @@ output
 ```
 
 # How To Run
-With your `sales.csv`config file saved to `/Users/bob/datastash/configs/sales.conf` you are ready to stream yourr data!
+With your `sales.csv`config file saved to `/Users/bob/datastash/configs/sales.conf` you are ready to stream your data!
 
 There are two things that Data Stash needs to be told in order to run.
- 1. Where to find your CSV file (`/Users/bob/csv/mysalesdata`)
+ 1. Where to find your source CSV file (`/Users/bob/csv/mysalesdata`)
  2. The location of the the config file (`/Users/bob/datastash/configs`)
 
-You tell Data Stash where the file and config are via the `-v` or `volume` command in Docker. Your CSV is located on your laptop in this folder: `/Users/bob/csv/mysalesdata` so we put that into the first `-v` command. Data Stash defaults to `/data` so you can leave that untouched. It should look like this:
+You tell Data Stash where the file and config are via the `-v` or `volume` command in Docker. In our example your CSV is located on your laptop in this folder: `/Users/bob/csv/mysalesdata`. This means we put that path into the first `-v` command. Internally Data Stash defaults to `/data` so you can leave that untouched. It should look like this:
 
 ```bash
 -v /Users/bob/csv/mysalesdata:/data
 ```
-You saved your config file on you laptop here: `/Users/bob/datastash/config`. Data Stash defaults to looking for configs in `/config/pipeline` so you can that untouched
+In our example you also saved your config file on you laptop here: `/Users/bob/datastash/config`. Data Stash defaults to looking for configs in `/config/pipeline` so you can that untouched:
 
 ```bash
 -v /Users/bob/datastash/configs:/config/pipeline
 ```
-lastly, we put it all togehter and tell Data Stash to stream the file:
+Lastly, we put it all together so we can tell Data Stash to stream the file. Here is the command to run our Docker based Data Stash image:
 ```bash
 
  docker run -it --rm \
