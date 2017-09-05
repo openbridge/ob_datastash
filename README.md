@@ -2,7 +2,7 @@
 
 Data Stash can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats such as CSV.
 
-![Data Stash](datastash.png "How It Works")
+![Data Stash](https://github.com/openbridge/ob_datastash/blob/master/datastash.png "How It Works")
 
 A the heart of Data Stash is [Logstash](https://www.elastic.co/products/logstash). For a deeper dive into the capabilities of Logstash check our their [documentation](https://www.elastic.co/guide/en/logstash/current/index.html).
 
