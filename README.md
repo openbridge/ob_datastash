@@ -339,6 +339,13 @@ For example, if you had a file called `sales.csv`, `sales002.csv` and `sales-all
 
 Please note, using a `*.csv` assumes all files have the same structure/layout. If they do not, then you can be streaming disjointed data sets which will likely fail when it comes time to loading data to your warehouse.
 
+## Performance
+If you are processing very large CSV files that have millions of records this approach can take awhile to complete. Depending on the complexity of the filters, you can expect about 1000 to 3000 events (i.e., rows) processed per minute. A CSV with 1,000,000 rows might take anywhere from 5 to 8 hours to complete.
+
+We limit the requests to 100 per second, so the max # of transactions possible in a minute would be 6000. At a rate of 6000 processing a 1M record CSV file would take close to 3 hours.
+
+You might want to explore using the Openbridge SFTP or SCP options for processing larger files.
+
 # Versioning
 
 Docker Tag | Git Hub Release | Logstash | Alpine Version
