@@ -1,5 +1,5 @@
 FROM openjdk:8-jre-alpine
-
+MAINTAINER Thomas Spicer <thomas@openbridge.com>
 RUN addgroup -S logstash && adduser -S -G logstash logstash
 
 RUN apk add --no-cache \
