@@ -35,17 +35,6 @@ RUN set -ex; \
 	\
 	wget -O logstash.tar.gz "$LOGSTASH_TARBALL"; \
 	\
-	if [ "$LOGSTASH_TARBALL_SHA1" ]; then \
-		echo "$LOGSTASH_TARBALL_SHA1 *logstash.tar.gz" | sha1sum -c -; \
-	fi; \
-	\
-	if [ "$LOGSTASH_TARBALL_ASC" ]; then \
-		wget -O logstash.tar.gz.asc "$LOGSTASH_TARBALL_ASC"; \
-		export GNUPGHOME="$(mktemp -d)"; \
-		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEY"; \
-		gpg --batch --verify logstash.tar.gz.asc logstash.tar.gz; \
-		rm -rf "$GNUPGHOME" logstash.tar.gz.asc; \
-	fi; \
 	\
 	dir="$(dirname "$LOGSTASH_PATH")"; \
 	\
