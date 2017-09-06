@@ -4,14 +4,19 @@ Data Stash can ingest data from different data sources, transform them, and then
 
 ![Data Stash](https://raw.githubusercontent.com/openbridge/ob_datastash/master/datastash.png "How It Works")
 
-A the heart of Data Stash is [Logstash](https://www.elastic.co/products/logstash). For a deeper dive into the capabilities of Logstash check our their [documentation](https://www.elastic.co/guide/en/logstash/current/index.html).
+# Why Data Stash?
 
-Data Stash is based on a premise of inputs, filters and outputs;
+Data Stash can perform some magic by automatically processing, cleaning, encoding and streaming contents of one or more CSVs directly to our API. Once it arrives at our API we automatically route all the data to a destination table in your data warehouse.  Since CSV files can be a bit messy we have pre-packaged processing configurations that turn those old files into first class data sources. Here are a few of the standard operations we have defined:
 
-- **Inputs**: Your data sources. Primarily this will be a CSV file, but it an be many others.
-- **Filters**: This is pre-processing your data prior to delivery to an output location
-- **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
-
+- Exclude columns resident in a CSV (e.g., remove/drop the userID, email address and social security columns) from the output
+- Replace non-ASCII characters with an ASCII approximation, or if none exists, a replacement character which defaults to ?
+- Remove extraneous white space from records in target columns
+- Strip backslashes, question marks, equals, hashes, minuses or other characters from the target columns
+- Set a desired data type of a given column and have it transform records to meet that type
+- Set everything to lowercase
+- Proper UTF-8 encoding of the data
+- Mask sensitive data with security "hashes" for one or more fields.
+- Add new fields, such as IDs or concatenations of other columns, which can replace the contents of a column or store the results in a new field that is appended to the CSV
 
 ## Quick Start Sample Config Files
 For reference, sample configs can be found in the [`/config/pipeline`](config/pipeline) folder of this repo.
@@ -20,6 +25,7 @@ For reference, sample configs can be found in the [`/config/pipeline`](config/pi
 - **CSV to API**: CSV without header rows use [`sample-csv-api-noheader.conf`](config/pipeline/sample-csv-api-noheader.conf)
 - **CSV to CSV**: To process one CSV to generate a clean processed CSV use[`sample-csv-csv-noheader.conf`](config/pipeline/sample-csv-csv-noheader.conf)
 - **Multiple CSV Inputs to Multiple CSV Outputs**: To process multiple CSV files to generate multiple clean CSV files use [`sample-multi-csv-csv-noheader.conf`](config/pipeline/sample-multi-csv-csv-noheader.conf)
+
 
 # Install
 
@@ -38,6 +44,11 @@ docker pull openbridge/ob_datastash:latest
 Once you have your image you are ready yo get started!
 
 # Getting Started: How To Stream CSV Files
+Data Stash is based on a premise of inputs, filters and outputs;
+
+- **Inputs**: Your data sources. Primarily this will be a CSV file, but it an be many others.
+- **Filters**: This is pre-processing your data prior to delivery to an output location
+- **Outputs**: Ther are a few output options but the principle is the Openbridge Webhook API
 
 Data Stash can take a CSV file and break each row into a streamed JSON "event". These JSON events are delivered to an Openbridge API for import into your target warehouse.
 
@@ -354,9 +365,7 @@ latest     | Master          | 5.5.2    | 3.6
 
 # Reference
 
-We leverage Logstash as the underlying application. Logstash is pretty cool and can do a lot more than just processing CSV files:
-
-- <https://www.elastic.co/products/logstash>
+A the heart of Data Stash is [Logstash](https://www.elastic.co/products/logstash). For a deeper dive into the capabilities of Logstash check our their [documentation](https://www.elastic.co/guide/en/logstash/current/index.html). Logstash is pretty cool and can do a lot more than just processing CSV files
 
 CSV files should follow RFC 4180 standards/guidance to ensure success with processing
 
