@@ -394,4 +394,4 @@ Before you start to code, we recommend discussing your plans through a GitHub is
 
 # License
 
-This project is licensed under the MIT License - see the <LICENSE> file for details
+This project is licensed under the MIT License
