@@ -5,12 +5,14 @@
 *.pwd
 *.salt.txt
 *.userhash.txt
+prod*
 
 # Folder view configuration files
 *.DS_Store
 .AppleDouble
 .LSOverride
 Desktop.ini
+*cipher*
 
 # Icon must end with two \r
 Icon

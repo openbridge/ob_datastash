@@ -1,6 +1,6 @@
 # Data Stash - Event API Client
 
-Data Stash can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats such as CSV.
+Data Stash is a `logstash` service than can ingest data from different data sources, transform them, and then send JSON output via HTTP to the Openbridge Events API. You can also store the outputs into other formats such as CSV.
 
 ![Data Stash](https://raw.githubusercontent.com/openbridge/ob_datastash/master/datastash.png "How It Works")
 
@@ -330,13 +330,15 @@ In our example you also saved your config file on you laptop here: `/Users/bob/d
 Lastly, we put it all together so we can tell Data Stash to stream the file. Here is the command to run our Docker based Data Stash image:
 
 ```bash
-
- docker run -it --rm \
- -v /Users/bob/csv/mysalesdata:/data \
- -v /Users/bob/datastash/configs:/config/pipeline \
- openbridge/ob_datastash \
- datastash -f /config/pipeline/sales.conf
+docker run -it --rm \
+-v /Users/bob/csv/mysalesdata:/data \
+-v /Users/bob/datastash/configs:/config/pipeline \
+openbridge/ob_datastash \
+datastash -f /config/pipeline/xxxxx.conf
 ```
+
+gpg --yes --batch --compress-algo none --passphrase "$2" --symmetric --cipher-algo aes256 -o $3 $4
+#gpg --yes --batch --passphrase 12345678901234567890123456789012 --symmetric --cipher-algo aes256 -o /data/azpaidsearch_by_dma_201705_rev.gpg /data/azpaidsearch_by_dma_201705_rev.csv
 
 # Notes
 
@@ -361,7 +363,7 @@ You might want to explore using the Openbridge SFTP or SCP options for processin
 
 Docker Tag | Git Hub Release | Logstash | Alpine Version
 ---------- | --------------- | -------- | --------------
-latest     | Master          | 5.5.2    | 3.6
+latest     | Master          | 6.1      | 3.6
 
 # Reference
 
