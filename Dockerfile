@@ -13,7 +13,7 @@ RUN apk add --no-cache 'su-exec>=0.2'
 ENV GPG_KEY 46095ACC8548582C1A2699A9D27D666CD88E42B4
 ENV LOGSTASH_PATH /usr/share/logstash/bin
 ENV PATH $LOGSTASH_PATH:$PATH
-ENV LOGSTASH_VERSION 6.1.0
+ENV LOGSTASH_VERSION 6.1.3
 ENV LOGSTASH_TARBALL="https://artifacts.elastic.co/downloads/logstash/logstash-${LOGSTASH_VERSION}.tar.gz" \
 	  LOGSTASH_TARBALL_ASC="https://artifacts.elastic.co/downloads/logstash/logstash-${LOGSTASH_VERSION}.tar.gz.asc" \
 	  LOGSTASH_TARBALL_SHA1="2961489ccf8bef2bf9ae6c4eaaeeeb65b2ccd109"
