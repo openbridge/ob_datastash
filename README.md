@@ -352,7 +352,7 @@ Please note, using a `*.csv` assumes all files have the same structure/layout. I
 
 Docker Tag | Git Hub Release | Logstash | Alpine Version
 ---------- | --------------- | -------- | --------------
-latest     | Master          | 5.5.2    | 3.6
+latest     | Master          | 6.2.3    | latest
 
 # Reference
 
